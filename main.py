@@ -11,7 +11,7 @@ INPUT_FOLDER = os.getenv("INPUT_FOLDER")
 
 
 @app.post("/speechmatics_batch_wrapper")
-async def speechmatics_batch_wrapper(File: UploadFile = File(...)):
+def speechmatics_batch_wrapper(File: UploadFile = File(...)):
 
     # Save the uploaded file as input.audio as speechmatics requirements
     with open(f"~/{INPUT_FOLDER}/input.audio", "wb") as f:
