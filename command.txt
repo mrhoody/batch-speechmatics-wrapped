@@ -1,3 +1,0 @@
-CPU run command: "docker run -i -v ~/$AUDIO_FILE:/input.audio \
-    -e LICENSE_TOKEN=$TOKEN_VALUE \
-    batch-asr-transcriber-en:11.0.1"
