@@ -1,15 +1,12 @@
----
-version: "3.8"
-
 networks:
   sm_batch_transcriber:
     driver: bridge
 
 services:
   sm_batch_wrapped:
-    build: ./batch_CPU.Dockerfile
-    env_file:
-      - .env
+    build:
+      context: .
+      dockerfile: ./batch_CPU.Dockerfile
     container_name: sm_batch_wrapped
     ports:
       - 8000:8000
@@ -22,24 +19,22 @@ services:
       - LICENSE_TOKEN=${LICENSE_TOKEN}
   sm_gpu:
     image: speechmatics-docker-demo.jfrog.io/sm-gpu-inference-server-en-singapore_poc
-    env_file:
-      - .env
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              ### Limit to N GPUs
               count: 1
               capabilities:
-                - gpu
+              - gpu
     container_name: sm_gpu
     networks:
       - sm_batch_transcriber
     ports:
       - 8001:8001
     environment:
+      - LICENSE_TOKEN=${LICENSE_TOKEN}
+      # - SM_MAX_CONCURRENT_CONNECTIONS=10
       - NVIDIA_DRIVER_CAPABILITIES=all
       - NVIDIA_VISIBLE_DEVICES=all
       - CUDA_VISIBLE_DEVICES=0
-      - SM_MAX_CONCURRENT_CONNECTIONS=10
