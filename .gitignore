@@ -171,5 +171,5 @@ cython_debug/
 .pypirc
 
 # Speechmatics license and config
-.config*.json
-.license*.json
+config**.json
+license**.json
