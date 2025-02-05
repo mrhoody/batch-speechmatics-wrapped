@@ -18,7 +18,7 @@ def list_files():
 def speechmatics_batch_wrapper(File: UploadFile = File(...)):
 
     # Save the uploaded file as input.audio as speechmatics requirements
-    with open("./input.audio", "wb") as f:  # default to root directory for now
+    with open("/input.audio", "wb") as f:  # default to root directory for now
         f.write(File.file.read())
 
     # Run the docker container with the input file
@@ -27,5 +27,5 @@ def speechmatics_batch_wrapper(File: UploadFile = File(...)):
     result = subprocess.run(run_command, stdout=subprocess.PIPE).stdout.decode("utf-8")
 
     # Clear the input file
-    os.remove("./input.audio")
+    os.remove("/input.audio")
     return {"stdout": result}
