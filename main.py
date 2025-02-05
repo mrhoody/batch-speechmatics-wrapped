@@ -8,12 +8,6 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 
-@app.get("/list_files")
-def list_files():
-    result = subprocess.run(["ls"], stdout=subprocess.PIPE).stdout.decode("utf-8")
-    return {"stdout": result}
-
-
 @app.post("/speechmatics_batch_wrapper")
 def speechmatics_batch_wrapper(file: UploadFile = File(...)) -> JSONResponse:
     if file.content_type != "audio/wav":
