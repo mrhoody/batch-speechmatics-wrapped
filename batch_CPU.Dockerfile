@@ -1,8 +1,4 @@
-# TODO: replace with speechmatics on-prem container as base
 FROM speechmatics-docker-demo.jfrog.io/sm-gpu-transcriber-batch-en-singapore_poc
-
-# set working directory, but according to speechmatics it can work from root
-# WORKDIR /opt/orchestrator
 
 # TODO: add python to speechmatics on-prem container
 RUN apt-get update

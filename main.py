@@ -3,12 +3,9 @@ import os
 import json
 
 from fastapi import FastAPI, File, UploadFile, status
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
-
-# LICENSE_TOKEN = os.getenv("LICENSE_TOKEN")
-# INPUT_FOLDER = os.getenv("INPUT_FOLDER") # commented out while we are using the root directory
-# SM_INFERENCE_ENDPOINT=os.getenv("SM_INFERENCE_ENDPOINT") # commented out until we get to using GPU support
 
 
 @app.get("/list_files")
@@ -18,31 +15,35 @@ def list_files():
 
 
 @app.post("/speechmatics_batch_wrapper")
-def speechmatics_batch_wrapper(File: UploadFile = File(...)):
-    if File.content_type != "audio/wav":
+def speechmatics_batch_wrapper(file: UploadFile = File(...)) -> JSONResponse:
+    if file.content_type != "audio/wav":
         return {
             "status": status.HTTP_400_BAD_REQUEST,
             "message": "invalid file uploaded, only .wav files are accepted",
         }
+    # TODO: Add a check for the file size (< 4GB per https://docs.speechmatics.com/on-prem/containers/cpu-container#batch-transcription)
+    # TODO: Add a check for the file duration (< 2 hours per https://docs.speechmatics.com/on-prem/containers/cpu-container#batch-transcription)
     try:
-        # Save the uploaded file as input.audio as speechmatics requirements
+        # Save the uploaded file to /input.audio as speechmatics requirements
         with open("/input.audio", "wb") as f:  # default to root directory for now
-            f.write(File.file.read())
+            f.write(file.file.read())
 
         # Run the docker container with the input file
         run_command = ["pipeline"]
         result = subprocess.run(run_command, stdout=subprocess.PIPE).stdout.decode(
             "utf-8"
-        )
+        )  # exit code == 0 is success, exit code != 0 is failure with stack trace
 
         # Convert stdout result to dictionary
         processed_result = json.loads(result)
 
-        # Clear the input file
+        # Clear the input file for next job
         os.remove("/input.audio")
+
+        # Return the results
         return {
             "status": status.HTTP_200_OK,
-            "filename": File.filename,
+            "filename": file.filename,
             "message": "transcription generated successfully",
             "results": processed_result["results"],
         }
